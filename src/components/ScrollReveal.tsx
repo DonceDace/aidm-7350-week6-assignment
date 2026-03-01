@@ -1,9 +1,9 @@
 import { type ReactNode, useRef } from 'react'
-import { motion, useInView } from 'motion/react'
+import { type TargetAndTransition, motion, useInView } from 'motion/react'
 
 type Variant = 'fadeUp' | 'fadeLeft' | 'fadeRight' | 'scaleUp' | 'blurIn' | 'slideRotate'
 
-const variants: Record<Variant, { hidden: Record<string, unknown>; visible: Record<string, unknown> }> = {
+const variants: Record<Variant, { hidden: TargetAndTransition; visible: TargetAndTransition }> = {
   fadeUp: {
     hidden: { opacity: 0, y: 60, filter: 'blur(6px)' },
     visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
