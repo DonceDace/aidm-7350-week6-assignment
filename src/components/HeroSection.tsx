@@ -153,24 +153,6 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 5 }}
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div style={{
-          width: 24, height: 40, borderRadius: 99,
-          border: '2px solid rgba(255,255,255,0.12)',
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 6,
-        }}>
-          <motion.div
-            style={{ width: 6, height: 6, borderRadius: 99, background: '#60a5fa' }}
-            animate={{ y: [0, 16, 0], opacity: [1, 0.3, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-        </div>
-      </motion.div>
     </section>
   )
 }
