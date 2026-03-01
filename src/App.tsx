@@ -328,7 +328,7 @@ export default function App() {
             </Row>
             <Divider style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '0 0 24px' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-              <Text style={{ color: '#475569', fontSize: 11 }}>© 2025 ResumeAI Screening System • Built with React + TF-IDF</Text>
+              <Text style={{ color: '#475569', fontSize: 11 }}>© 2026 ResumeAI Screening System • Built with React + TF-IDF</Text>
               <Space size={8}>
                 <Tag style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', color: '#475569', fontSize: 10, borderRadius: 20 }}>v2.0.0</Tag>
                 <Tag style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', color: '#475569', fontSize: 10, borderRadius: 20 }}>100% Client-Side</Tag>
