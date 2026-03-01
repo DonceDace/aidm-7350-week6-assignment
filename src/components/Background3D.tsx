@@ -1,7 +1,14 @@
-import { useRef, useMemo, useEffect, useState } from 'react'
+import { useRef, useMemo, useEffect, useState, Component, type ReactNode } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Stars } from '@react-three/drei'
 import * as THREE from 'three'
+
+/* ───── Error Boundary to prevent 3D crashes from breaking the app ───── */
+class CanvasErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false }
+  static getDerivedStateFromError() { return { hasError: true } }
+  render() { return this.state.hasError ? null : this.props.children }
+}
 
 /* ───── Shared mouse state (normalised -1…1) ───── */
 function useMouseTracker() {
@@ -183,15 +190,17 @@ export default function Background3D() {
   const mouse = useMouseTracker()
 
   return (
-    <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
-      <Canvas
-        camera={{ position: [0, 0, 6], fov: 60 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent', pointerEvents: 'none' }}
-        eventSource={document.documentElement}
-        eventPrefix="client"
-      >
+    <CanvasErrorBoundary>
+      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
+        <Canvas
+          camera={{ position: [0, 0, 6], fov: 60 }}
+          dpr={[1, 1.5]}
+          gl={{ antialias: true, alpha: true }}
+          style={{ background: 'transparent', pointerEvents: 'none' }}
+          eventSource={document.documentElement}
+          eventPrefix="client"
+          fallback={null}
+        >
         <CameraRig mouse={mouse} />
 
         <ambientLight intensity={0.3} />
@@ -219,5 +228,6 @@ export default function Background3D() {
         <fog attach="fog" args={['#050d1a', 8, 30]} />
       </Canvas>
     </div>
+    </CanvasErrorBoundary>
   )
 }
