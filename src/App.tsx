@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, lazy, Suspense } from 'react'
 import { Layout, Row, Col, Typography, ConfigProvider, theme, Space, Segmented, Tag, FloatButton, Divider } from 'antd'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -7,11 +7,13 @@ import {
   RocketOutlined,
 } from '@ant-design/icons'
 
-import Background3D from './components/Background3D'
+// Lazy load heavy components to improve LCP
+const Background3D = lazy(() => import('./components/Background3D'))
+const FeatureShowcase = lazy(() => import('./components/FeatureShowcase'))
+const HowItWorks = lazy(() => import('./components/HowItWorks'))
+
 import Header from './components/Header'
 import HeroSection from './components/HeroSection'
-import FeatureShowcase from './components/FeatureShowcase'
-import HowItWorks from './components/HowItWorks'
 import ScrollProgress from './components/ScrollProgress'
 import ScrollDecorations from './components/ScrollDecorations'
 import ScrollReveal from './components/ScrollReveal'
@@ -121,8 +123,10 @@ export default function App() {
       }}
     >
       <Layout style={{ minHeight: '100vh', background: 'transparent', position: 'relative' }}>
-        {/* 3D Background */}
-        <Background3D />
+        {/* 3D Background — lazy loaded to improve LCP */}
+        <Suspense fallback={null}>
+          <Background3D />
+        </Suspense>
 
         {/* Scroll-linked decorations (parallax orbs + shapes) */}
         <ScrollDecorations />
@@ -145,7 +149,9 @@ export default function App() {
           {/* Features */}
           <ScrollReveal variant="fadeUp" duration={0.9}>
             <section id="features" style={{ scrollMarginTop: 80 }}>
-              <FeatureShowcase />
+              <Suspense fallback={null}>
+                <FeatureShowcase />
+              </Suspense>
             </section>
           </ScrollReveal>
 
@@ -156,7 +162,9 @@ export default function App() {
           {/* How It Works */}
           <ScrollReveal variant="blurIn" duration={0.9}>
             <section id="how-it-works" style={{ scrollMarginTop: 80 }}>
-              <HowItWorks />
+              <Suspense fallback={null}>
+                <HowItWorks />
+              </Suspense>
             </section>
           </ScrollReveal>
 

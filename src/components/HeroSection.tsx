@@ -41,11 +41,11 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {/* Title */}
+      {/* Title — no delay for fast LCP */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.15 }}
+        transition={{ duration: 0.4 }}
         style={{ zIndex: 5, textAlign: 'center', maxWidth: 800, padding: '0 16px' }}
       >
         <Title level={1} style={{ color: '#fff', fontSize: 'clamp(32px, 6vw, 64px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 24, letterSpacing: -1 }}>
