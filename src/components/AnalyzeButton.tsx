@@ -83,7 +83,7 @@ export default function AnalyzeButton({ onClick, disabled, isProcessing, fileCou
                 ? `Analyzing ${fileCount} resume${fileCount > 1 ? 's' : ''}...`
                 : disabled
                 ? 'Upload resumes & add job description'
-                : `Analyze ${fileCount} Resume${fileCount > 1 ? 's' : ''}`
+                : `Analysis ${fileCount} Resume${fileCount > 1 ? 's' : ''}`
               }
             </span>
             {!disabled && !isProcessing && <ArrowRightOutlined style={{ marginLeft: 8 }} />}

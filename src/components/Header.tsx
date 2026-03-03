@@ -9,8 +9,9 @@ import {
 const { Header: AntHeader } = Layout
 
 const navItems = [
+  { key: 'home', label: 'Home' },
   { key: 'features', label: 'Features' },
-  { key: 'screening', label: 'Screening' },
+  { key: 'screening', label: 'Upload' },
   { key: 'how-it-works', label: 'How It Works' },
 ]
 
@@ -74,7 +75,9 @@ export default function Header() {
             style={{ background: 'transparent', borderBottom: 'none', flex: 1, justifyContent: 'center' }}
             items={navItems.map(item => ({
               key: item.key,
-              label: <a href={`#${item.key}`} style={{ color: 'rgba(148,163,184,0.9)', fontSize: 13, fontWeight: 500 }}>{item.label}</a>,
+              label: item.key === 'home'
+                ? <a href="#" onClick={e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{ color: 'rgba(148,163,184,0.9)', fontSize: 13, fontWeight: 500 }}>Home</a>
+                : <a href={`#${item.key}`} style={{ color: 'rgba(148,163,184,0.9)', fontSize: 13, fontWeight: 500 }}>{item.label}</a>,
             }))}
           />
 
