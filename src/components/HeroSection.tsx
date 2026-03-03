@@ -20,7 +20,7 @@ const metrics = [
 
 export default function HeroSection() {
   return (
-    <section style={{ position: 'relative', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 72, paddingBottom: 24, overflow: 'hidden' }}>
+    <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 72, paddingBottom: 40, overflow: 'hidden' }}>
 
       {/* Badge */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} style={{ marginBottom: 24, zIndex: 5 }}>

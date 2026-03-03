@@ -141,13 +141,8 @@ export default function App() {
           {/* Hero */}
           <HeroSection />
 
-          {/* Section divider */}
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-            <Divider style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '0' }} />
-          </div>
-
           {/* Features */}
-          <ScrollReveal variant="fadeUp" duration={0.9}>
+          <ScrollReveal variant="fadeUp" duration={1.1}>
             <section id="features" style={{ scrollMarginTop: 80 }}>
               <Suspense fallback={null}>
                 <FeatureShowcase />
@@ -155,12 +150,8 @@ export default function App() {
             </section>
           </ScrollReveal>
 
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-            <Divider style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '0' }} />
-          </div>
-
           {/* How It Works */}
-          <ScrollReveal variant="blurIn" duration={0.9}>
+          <ScrollReveal variant="blurIn" duration={1.1}>
             <section id="how-it-works" style={{ scrollMarginTop: 80 }}>
               <Suspense fallback={null}>
                 <HowItWorks />
@@ -168,12 +159,8 @@ export default function App() {
             </section>
           </ScrollReveal>
 
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-            <Divider style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '0' }} />
-          </div>
-
-          {/* ===== SCREENING SECTION ===== */}
-          <ScrollReveal variant="scaleUp" duration={0.9}>
+          {/* ===== SCREENING SECTION (not snapped — scrollable content) ===== */}
+          <ScrollReveal variant="scaleUp" duration={1.1}>
             <section id="screening" style={{ scrollMarginTop: 80, padding: '48px 0' }}>
             <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
               {/* Section header */}

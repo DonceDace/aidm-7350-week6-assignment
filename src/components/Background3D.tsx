@@ -1,233 +1,221 @@
-import { useRef, useMemo, useEffect, useState, Component, type ReactNode } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, Stars } from '@react-three/drei'
-import * as THREE from 'three'
+import { useRef, useEffect, useCallback } from 'react'
 
-/* ───── Error Boundary to prevent 3D crashes from breaking the app ───── */
-class CanvasErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false }
-  static getDerivedStateFromError() { return { hasError: true } }
-  render() { return this.state.hasError ? null : this.props.children }
+const STAR_COLOR = '#fff'
+const STAR_SIZE = 3
+const STAR_MIN_SCALE = 0.2
+const OVERFLOW_THRESHOLD = 50
+
+interface Star {
+  x: number
+  y: number
+  z: number
 }
 
-/* ───── Shared mouse state (normalised -1…1) ───── */
-function useMouseTracker() {
-  const [mouse, setMouse] = useState({ x: 0, y: 0 })
+export default function Background3D() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const starsRef = useRef<Star[]>([])
+  const velocityRef = useRef({ x: 0, y: 0, tx: 0, ty: 0, z: 0.0005 })
+  const pointerRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null })
+  const sizeRef = useRef({ width: 0, height: 0, scale: 1 })
+  const rafRef = useRef<number>(0)
+  const lastScrollY = useRef(0)
+
+  const placeStar = useCallback((star: Star) => {
+    star.x = Math.random() * sizeRef.current.width
+    star.y = Math.random() * sizeRef.current.height
+  }, [])
+
+  const recycleStar = useCallback((star: Star) => {
+    const { width, height } = sizeRef.current
+    const vel = velocityRef.current
+    let direction = 'z'
+
+    const vx = Math.abs(vel.x)
+    const vy = Math.abs(vel.y)
+
+    if (vx > 1 || vy > 1) {
+      let axis: string
+      if (vx > vy) {
+        axis = Math.random() < vx / (vx + vy) ? 'h' : 'v'
+      } else {
+        axis = Math.random() < vy / (vx + vy) ? 'v' : 'h'
+      }
+      if (axis === 'h') {
+        direction = vel.x > 0 ? 'l' : 'r'
+      } else {
+        direction = vel.y > 0 ? 't' : 'b'
+      }
+    }
+
+    star.z = STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE)
+
+    if (direction === 'z') {
+      star.z = 0.1
+      star.x = Math.random() * width
+      star.y = Math.random() * height
+    } else if (direction === 'l') {
+      star.x = -OVERFLOW_THRESHOLD
+      star.y = height * Math.random()
+    } else if (direction === 'r') {
+      star.x = width + OVERFLOW_THRESHOLD
+      star.y = height * Math.random()
+    } else if (direction === 't') {
+      star.x = width * Math.random()
+      star.y = -OVERFLOW_THRESHOLD
+    } else if (direction === 'b') {
+      star.x = width * Math.random()
+      star.y = height + OVERFLOW_THRESHOLD
+    }
+  }, [])
+
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      setMouse({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1,
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const context = canvas.getContext('2d')
+    if (!context) return
+
+    // Generate stars
+    const starCount = (window.innerWidth + window.innerHeight) / 8
+    const stars: Star[] = []
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: 0,
+        y: 0,
+        z: STAR_MIN_SCALE + Math.random() * (1 - STAR_MIN_SCALE),
       })
     }
-    window.addEventListener('mousemove', onMove)
-    return () => window.removeEventListener('mousemove', onMove)
-  }, [])
-  return mouse
-}
+    starsRef.current = stars
 
-/* ───── Camera rig that follows the cursor ───── */
-function CameraRig({ mouse }: { mouse: { x: number; y: number } }) {
-  const { camera } = useThree()
-  const target = useRef(new THREE.Vector3(0, 0, 6))
-
-  useFrame(() => {
-    target.current.set(mouse.x * 1.2, mouse.y * 0.8, 6)
-    camera.position.lerp(target.current, 0.04)
-    camera.lookAt(0, 0, -4)
-  })
-  return null
-}
-
-/* ───── Animated torus knot — reacts to cursor ───── */
-function FloatingKnot({ mouse }: { mouse: { x: number; y: number } }) {
-  const ref = useRef<THREE.Mesh>(null!)
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    ref.current.rotation.x = t * 0.15 + mouse.y * 0.3
-    ref.current.rotation.y = t * 0.2 + mouse.x * 0.3
-    ref.current.position.x = 3 + mouse.x * 0.5
-    ref.current.position.y = 1.5 + mouse.y * 0.4
-  })
-  return (
-    <Float speed={1.2} rotationIntensity={0.8} floatIntensity={1.5}>
-      <mesh ref={ref} position={[3, 1.5, -5]}>
-        <torusKnotGeometry args={[1, 0.35, 128, 32]} />
-        <meshStandardMaterial
-          color="#3b82f6"
-          emissive="#1d4ed8"
-          emissiveIntensity={0.4}
-          wireframe
-          transparent
-          opacity={0.35}
-        />
-      </mesh>
-    </Float>
-  )
-}
-
-/* ───── Rotating icosahedron ───── */
-function FloatingIco({ mouse }: { mouse: { x: number; y: number } }) {
-  const ref = useRef<THREE.Mesh>(null!)
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    ref.current.rotation.x = t * 0.1 - mouse.y * 0.25
-    ref.current.rotation.z = t * 0.12 + mouse.x * 0.2
-    ref.current.position.x = -3.5 - mouse.x * 0.4
-    ref.current.position.y = -1 + mouse.y * 0.35
-  })
-  return (
-    <Float speed={0.8} rotationIntensity={1} floatIntensity={1}>
-      <mesh ref={ref} position={[-3.5, -1, -4]}>
-        <icosahedronGeometry args={[1.4, 1]} />
-        <meshStandardMaterial
-          color="#8b5cf6"
-          emissive="#6d28d9"
-          emissiveIntensity={0.35}
-          wireframe
-          transparent
-          opacity={0.3}
-        />
-      </mesh>
-    </Float>
-  )
-}
-
-/* ───── Orbiting ring ───── */
-function OrbitalRing({ mouse }: { mouse: { x: number; y: number } }) {
-  const ref = useRef<THREE.Mesh>(null!)
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    ref.current.rotation.x = Math.PI / 3 + Math.sin(t * 0.2) * 0.15 + mouse.y * 0.15
-    ref.current.rotation.z = t * 0.08 + mouse.x * 0.1
-  })
-  return (
-    <mesh ref={ref} position={[0, 0, -6]}>
-      <torusGeometry args={[3, 0.04, 16, 100]} />
-      <meshStandardMaterial
-        color="#06b6d4"
-        emissive="#0891b2"
-        emissiveIntensity={0.6}
-        transparent
-        opacity={0.2}
-      />
-    </mesh>
-  )
-}
-
-/* ───── Particle field ───── */
-function Particles({ count = 300, mouse }: { count?: number; mouse: { x: number; y: number } }) {
-  const ref = useRef<THREE.Points>(null!)
-
-  const [positions, sizes] = useMemo(() => {
-    const pos = new Float32Array(count * 3)
-    const sz = new Float32Array(count)
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 30
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5
-      sz[i] = Math.random() * 2 + 0.5
+    // Resize handler
+    const resize = () => {
+      const scale = window.devicePixelRatio || 1
+      const width = window.innerWidth * scale
+      const height = window.innerHeight * scale
+      canvas.width = width
+      canvas.height = height
+      sizeRef.current = { width, height, scale }
+      stars.forEach(placeStar)
     }
-    return [pos, sz]
-  }, [count])
 
-  useFrame(({ clock }) => {
-    if (!ref.current) return
-    const t = clock.getElapsedTime()
-    ref.current.rotation.y = t * 0.02 + mouse.x * 0.08
-    ref.current.rotation.x = Math.sin(t * 0.01) * 0.05 + mouse.y * 0.06
-  })
+    // Animation loop
+    const step = () => {
+      const { width, height, scale } = sizeRef.current
+      const vel = velocityRef.current
+
+      context.clearRect(0, 0, width, height)
+
+      // Update
+      vel.tx *= 0.96
+      vel.ty *= 0.96
+      vel.x += (vel.tx - vel.x) * 0.8
+      vel.y += (vel.ty - vel.y) * 0.8
+
+      stars.forEach((star) => {
+        star.x += vel.x * star.z
+        star.y += vel.y * star.z
+        star.x += (star.x - width / 2) * vel.z * star.z
+        star.y += (star.y - height / 2) * vel.z * star.z
+        star.z += vel.z
+
+        if (
+          star.x < -OVERFLOW_THRESHOLD ||
+          star.x > width + OVERFLOW_THRESHOLD ||
+          star.y < -OVERFLOW_THRESHOLD ||
+          star.y > height + OVERFLOW_THRESHOLD
+        ) {
+          recycleStar(star)
+        }
+      })
+
+      // Render
+      stars.forEach((star) => {
+        context.beginPath()
+        context.lineCap = 'round'
+        context.lineWidth = STAR_SIZE * star.z * scale
+        context.globalAlpha = 0.5 + 0.5 * Math.random()
+        context.strokeStyle = STAR_COLOR
+
+        context.beginPath()
+        context.moveTo(star.x, star.y)
+
+        let tailX = vel.x * 2
+        let tailY = vel.y * 2
+        if (Math.abs(tailX) < 0.1) tailX = 0.5
+        if (Math.abs(tailY) < 0.1) tailY = 0.5
+
+        context.lineTo(star.x + tailX, star.y + tailY)
+        context.stroke()
+      })
+
+      rafRef.current = requestAnimationFrame(step)
+    }
+
+    // Pointer handlers
+    const movePointer = (x: number, y: number) => {
+      const ptr = pointerRef.current
+      const { scale } = sizeRef.current
+      if (typeof ptr.x === 'number' && typeof ptr.y === 'number') {
+        const ox = x - ptr.x
+        const oy = y - ptr.y
+        velocityRef.current.tx += (ox / (64 * scale)) * -1
+        velocityRef.current.ty += (oy / (64 * scale)) * -1
+      }
+      ptr.x = x
+      ptr.y = y
+    }
+
+    const onMouseMove = (e: MouseEvent) => movePointer(e.clientX, e.clientY)
+    const onTouchMove = (e: TouchEvent) => {
+      movePointer(e.touches[0].clientX, e.touches[0].clientY)
+      e.preventDefault()
+    }
+    const onMouseLeave = () => {
+      pointerRef.current.x = null
+      pointerRef.current.y = null
+    }
+
+    // Scroll handler — same sensitivity as mouse
+    const onScroll = () => {
+      const currentY = window.scrollY
+      const delta = currentY - lastScrollY.current
+      const { scale } = sizeRef.current
+      velocityRef.current.ty += (delta / (64 * scale)) * 1
+      lastScrollY.current = currentY
+    }
+
+    // Init
+    lastScrollY.current = window.scrollY
+    resize()
+    rafRef.current = requestAnimationFrame(step)
+
+    window.addEventListener('resize', resize)
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('touchend', onMouseLeave)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    document.addEventListener('mouseleave', onMouseLeave)
+
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend', onMouseLeave)
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('mouseleave', onMouseLeave)
+    }
+  }, [placeStar, recycleStar])
 
   return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-size"
-          args={[sizes, 1]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.04}
-        color="#60a5fa"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
-  )
-}
-
-/* ───── Sphere grid ───── */
-function GlowSphere({ mouse }: { mouse: { x: number; y: number } }) {
-  const ref = useRef<THREE.Mesh>(null!)
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    ref.current.rotation.y = t * 0.05 + mouse.x * 0.15
-    ref.current.rotation.x = t * 0.03 + mouse.y * 0.1
-  })
-  return (
-    <mesh ref={ref} position={[0, 0, -8]}>
-      <sphereGeometry args={[2.5, 24, 24]} />
-      <meshStandardMaterial
-        color="#1e40af"
-        emissive="#1e3a5f"
-        emissiveIntensity={0.3}
-        wireframe
-        transparent
-        opacity={0.12}
-      />
-    </mesh>
-  )
-}
-
-/* ───── Main background canvas ───── */
-export default function Background3D() {
-  const mouse = useMouseTracker()
-
-  return (
-    <CanvasErrorBoundary>
-      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'auto' }}>
-        <Canvas
-          camera={{ position: [0, 0, 6], fov: 60 }}
-          dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: true }}
-          style={{ background: 'transparent', pointerEvents: 'none' }}
-          eventSource={document.documentElement}
-          eventPrefix="client"
-          fallback={null}
-        >
-        <CameraRig mouse={mouse} />
-
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 5, 5]} intensity={0.4} color="#93c5fd" />
-        <pointLight position={[-4, 3, 2]} intensity={0.5} color="#8b5cf6" distance={15} />
-        <pointLight position={[4, -2, 3]} intensity={0.3} color="#06b6d4" distance={12} />
-
-        <Stars
-          radius={60}
-          depth={60}
-          count={2500}
-          factor={3}
-          saturation={0.3}
-          fade
-          speed={0.8}
-        />
-
-        <Particles count={300} mouse={mouse} />
-        <FloatingKnot mouse={mouse} />
-        <FloatingIco mouse={mouse} />
-        <OrbitalRing mouse={mouse} />
-        <GlowSphere mouse={mouse} />
-
-        {/* Fog for depth */}
-        <fog attach="fog" args={['#050d1a', 8, 30]} />
-      </Canvas>
-    </div>
-    </CanvasErrorBoundary>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+      }}
+    />
   )
 }

@@ -5,27 +5,27 @@ type Variant = 'fadeUp' | 'fadeLeft' | 'fadeRight' | 'scaleUp' | 'blurIn' | 'sli
 
 const variants: Record<Variant, { hidden: TargetAndTransition; visible: TargetAndTransition }> = {
   fadeUp: {
-    hidden: { opacity: 0, y: 60, filter: 'blur(6px)' },
+    hidden: { opacity: 0, y: 100, filter: 'blur(10px)' },
     visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
   },
   fadeLeft: {
-    hidden: { opacity: 0, x: -80, filter: 'blur(4px)' },
+    hidden: { opacity: 0, x: -120, filter: 'blur(8px)' },
     visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
   },
   fadeRight: {
-    hidden: { opacity: 0, x: 80, filter: 'blur(4px)' },
+    hidden: { opacity: 0, x: 120, filter: 'blur(8px)' },
     visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
   },
   scaleUp: {
-    hidden: { opacity: 0, scale: 0.8, filter: 'blur(8px)' },
+    hidden: { opacity: 0, scale: 0.7, filter: 'blur(14px)' },
     visible: { opacity: 1, scale: 1, filter: 'blur(0px)' },
   },
   blurIn: {
-    hidden: { opacity: 0, filter: 'blur(16px)', scale: 0.95 },
+    hidden: { opacity: 0, filter: 'blur(28px)', scale: 0.88 },
     visible: { opacity: 1, filter: 'blur(0px)', scale: 1 },
   },
   slideRotate: {
-    hidden: { opacity: 0, y: 80, rotate: -3 },
+    hidden: { opacity: 0, y: 100, rotate: -5 },
     visible: { opacity: 1, y: 0, rotate: 0 },
   },
 }
@@ -67,9 +67,9 @@ export default function ScrollReveal({
       initial={hidden}
       animate={isInView ? visible : hidden}
       transition={{
-        duration,
+        duration: duration * 1.15,
         delay,
-        ease: [0.22, 1, 0.36, 1], // custom cubic-bezier for smooth deceleration
+        ease: [0.16, 1, 0.3, 1], // TwitchCon-style smooth overshoot deceleration
       }}
       style={{ willChange: 'transform, opacity, filter', ...style }}
     >
