@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Card, Typography, Upload as AntUpload, Tag, Progress, Button, Space } from 'antd'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -18,14 +18,13 @@ const { Dragger } = AntUpload
 
 interface FileUploadProps {
   files: ResumeFile[]
-  onFilesChange: (files: ResumeFile[]) => void
+  onFileAdd: (file: ResumeFile) => void
+  onFileRemove: (id: string) => void
   isProcessing: boolean
 }
 
-export default function FileUpload({ files, onFilesChange, isProcessing }: FileUploadProps) {
+export default function FileUpload({ files, onFileAdd, onFileRemove, isProcessing }: FileUploadProps) {
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set())
-  const filesRef = useRef(files)
-  filesRef.current = files
 
   const processFile = useCallback(async (file: File) => {
     const id = crypto.randomUUID()
@@ -38,17 +37,17 @@ export default function FileUpload({ files, onFilesChange, isProcessing }: FileU
         text = await file.text()
       }
       const resumeFile: ResumeFile = { id, name: file.name, text, size: file.size, uploadedAt: new Date() }
-      onFilesChange([...filesRef.current, resumeFile])
+      onFileAdd(resumeFile)
     } catch (err) {
       console.error('Error processing file:', err)
     } finally {
       setUploadingFiles(prev => { const next = new Set(prev); next.delete(id); return next })
     }
-  }, [onFilesChange])
+  }, [onFileAdd])
 
   const removeFile = useCallback((id: string) => {
-    onFilesChange(files.filter(f => f.id !== id))
-  }, [files, onFilesChange])
+    onFileRemove(id)
+  }, [onFileRemove])
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
@@ -98,6 +97,7 @@ export default function FileUpload({ files, onFilesChange, isProcessing }: FileU
           multiple
           accept=".pdf,.txt"
           showUploadList={false}
+          fileList={[]}
           beforeUpload={(file) => {
             processFile(file as unknown as File)
             return false

@@ -1,0 +1,51 @@
+MICHAEL RODRIGUEZ
+Data Analyst & Business Intelligence Specialist
+Email: m.rodriguez@email.com | LinkedIn: linkedin.com/in/mrodriguez
+Location: Austin, TX
+
+PROFESSIONAL SUMMARY
+Detail-oriented data analyst with 3 years of experience in business intelligence, data visualization, and statistical analysis. Skilled in Python, SQL, and various BI tools. Adept at transforming complex datasets into actionable insights for stakeholders. Currently transitioning toward a software engineering role with self-taught web development skills.
+
+TECHNICAL SKILLS
+Programming Languages: Python, SQL, R, JavaScript, HTML, CSS
+Data & Analytics: Pandas, NumPy, Scikit-learn, Matplotlib, Seaborn, Jupyter Notebook
+BI Tools: Tableau, Power BI, Google Data Studio, Looker
+Databases: MySQL, PostgreSQL, SQLite, BigQuery
+Web Development: React (basic), HTML, CSS, Bootstrap
+Tools: Git, Excel, Google Sheets, Slack, Notion
+Cloud: Google Cloud Platform (BigQuery, Cloud Functions)
+
+WORK EXPERIENCE
+
+Data Analyst | DataDriven Solutions | Mar 2023 - Present
+- Designed and maintained interactive Tableau dashboards tracking KPIs for 15+ business units
+- Wrote complex SQL queries to extract and analyze data from multi-terabyte data warehouse
+- Built automated data pipeline using Python and Apache Airflow, saving 20 hours per week of manual work
+- Conducted A/B testing analysis for marketing campaigns, providing statistical recommendations
+- Presented weekly data insights to C-suite executives, influencing strategic decisions
+
+Junior Data Analyst | RetailCo | Jul 2021 - Feb 2023
+- Analyzed customer purchase patterns using Python and pandas, identifying $2M revenue opportunity
+- Created Power BI reports for inventory management, reducing stockouts by 30%
+- Developed SQL-based reporting system for sales performance tracking
+- Collaborated with engineering team to implement data collection improvements
+
+Data Analyst Intern | Analytics Startup | Jan 2021 - Jun 2021
+- Cleaned and processed large datasets using Python for machine learning model training
+- Built basic predictive models using scikit-learn for customer churn prediction
+- Assisted in creating data documentation and data dictionary for internal use
+
+EDUCATION
+Bachelor of Science in Statistics | University of Texas at Austin | 2020
+- GPA: 3.5/4.0
+- Minor: Computer Science
+- Relevant Coursework: Statistical Methods, Probability Theory, Linear Algebra, Database Management, Intro to Programming
+
+CERTIFICATIONS
+- Google Data Analytics Professional Certificate (2022)
+- Tableau Desktop Specialist (2023)
+
+PROJECTS
+- Personal portfolio website built with React and deployed on Vercel
+- Kaggle competitions: Top 15% in Titanic survival prediction
+- COVID-19 data visualization dashboard using Python and Streamlit

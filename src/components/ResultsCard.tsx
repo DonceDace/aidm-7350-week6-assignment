@@ -39,7 +39,7 @@ function getRankInfo(r: number) {
 }
 
 export default function ResultsCard({ result, rank, delay = 0 }: ResultsCardProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
   const badge = getRankInfo(rank)
   const scoreColor = getScoreColor(result.overallScore)
 

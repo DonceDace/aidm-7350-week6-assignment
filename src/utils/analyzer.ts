@@ -88,6 +88,20 @@ function cosineSimilarity(text1: string, text2: string): number {
 }
 
 /**
+ * Check if text contains a skill — uses word-boundary matching for short
+ * skills (< 4 chars) to prevent false positives like 'r' matching "architecture".
+ */
+function textContainsSkill(lowerText: string, skill: string): boolean {
+  if (skill.length >= 4) {
+    return lowerText.includes(skill)
+  }
+  // Short skills (r, go, ai, sql, css, c++, c#, etc.) need boundary matching
+  const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(`(?:^|[^a-z0-9#+.])${escaped}(?:$|[^a-z0-9#+.])`, 'i')
+  return pattern.test(lowerText)
+}
+
+/**
  * Extract skills found in text from our skills database
  */
 function extractSkills(text: string, jobDesc: string): { matched: string[], missing: string[] } {
@@ -98,7 +112,7 @@ function extractSkills(text: string, jobDesc: string): { matched: string[], miss
   const jobSkills: string[] = []
   for (const [, skills] of Object.entries(SKILLS_DATABASE)) {
     for (const skill of skills) {
-      if (lowerJob.includes(skill)) {
+      if (textContainsSkill(lowerJob, skill)) {
         jobSkills.push(skill)
       }
     }
@@ -109,7 +123,7 @@ function extractSkills(text: string, jobDesc: string): { matched: string[], miss
   const missing: string[] = []
 
   for (const skill of jobSkills) {
-    if (lowerText.includes(skill)) {
+    if (textContainsSkill(lowerText, skill)) {
       matched.push(skill)
     } else {
       missing.push(skill)

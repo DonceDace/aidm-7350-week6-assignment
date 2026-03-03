@@ -26,6 +26,7 @@ import HistoryPanel from './components/HistoryPanel'
 
 import type { ResumeFile, AnalysisResult, AnalysisHistory } from './types'
 import { analyzeResume } from './utils/analyzer'
+import { DEMO_JOB_DESCRIPTION, DEMO_RESUME_A, DEMO_RESUME_B } from './utils/demoData'
 
 const { Content, Footer } = Layout
 const { Title, Paragraph, Text } = Typography
@@ -41,10 +42,35 @@ function saveHistory(history: AnalysisHistory[]) {
   localStorage.setItem('resume-screening-history', JSON.stringify(history))
 }
 
+// Build demo state synchronously so the first render already has results
+function buildDemoState() {
+  const fileA: ResumeFile = {
+    id: crypto.randomUUID(),
+    name: 'resume_A.txt',
+    text: DEMO_RESUME_A,
+    size: new Blob([DEMO_RESUME_A]).size,
+    uploadedAt: new Date(),
+  }
+  const fileB: ResumeFile = {
+    id: crypto.randomUUID(),
+    name: 'resume_B.txt',
+    text: DEMO_RESUME_B,
+    size: new Blob([DEMO_RESUME_B]).size,
+    uploadedAt: new Date(),
+  }
+  const demoFiles = [fileA, fileB]
+  const demoResults = demoFiles
+    .map(f => analyzeResume(f.text, f.name, DEMO_JOB_DESCRIPTION))
+    .sort((a, b) => b.overallScore - a.overallScore)
+  return { demoFiles, demoResults }
+}
+
+const { demoFiles: INIT_FILES, demoResults: INIT_RESULTS } = buildDemoState()
+
 export default function App() {
-  const [files, setFiles] = useState<ResumeFile[]>([])
-  const [jobDescription, setJobDescription] = useState('')
-  const [results, setResults] = useState<AnalysisResult[]>([])
+  const [files, setFiles] = useState<ResumeFile[]>(INIT_FILES)
+  const [jobDescription, setJobDescription] = useState(DEMO_JOB_DESCRIPTION)
+  const [results, setResults] = useState<AnalysisResult[]>(INIT_RESULTS)
   const [isProcessing, setIsProcessing] = useState(false)
   const [history, setHistory] = useState<AnalysisHistory[]>(loadHistory)
   const [sortBy, setSortBy] = useState<'score' | 'name'>('score')
@@ -52,6 +78,14 @@ export default function App() {
   const resultsRef = useRef<HTMLDivElement>(null)
 
   const canAnalyze = files.length > 0 && jobDescription.trim().length > 10
+
+  const handleFileAdd = useCallback((file: ResumeFile) => {
+    setFiles(prev => [...prev, file])
+  }, [])
+
+  const handleFileRemove = useCallback((id: string) => {
+    setFiles(prev => prev.filter(f => f.id !== id))
+  }, [])
 
   const handleAnalyze = useCallback(async () => {
     if (!canAnalyze) return
@@ -196,7 +230,7 @@ export default function App() {
               <Row gutter={[24, 24]} style={{ marginBottom: 0 }}>
                 <Col xs={24} lg={12}>
                   <ScrollReveal variant="fadeLeft" delay={0.1}>
-                    <FileUpload files={files} onFilesChange={setFiles} isProcessing={isProcessing} />
+                    <FileUpload files={files} onFileAdd={handleFileAdd} onFileRemove={handleFileRemove} isProcessing={isProcessing} />
                   </ScrollReveal>
                 </Col>
                 <Col xs={24} lg={12}>
